@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sell on VibeCart — Post an Ad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .sell-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Form card */
+    .sell-form-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .sell-form-header {
+      padding: 28px 32px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sell-form-header h1 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .sell-form-header p { font-size: 0.875rem; color: var(--ink-muted); }
+    .sell-form-body { padding: 28px 32px; }
+
+    /* Progress steps */
+    .sell-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+    .sell-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+    .sell-step.active { color: var(--ink); }
+    .sell-step.done { color: var(--accent); }
+    .step-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .sell-step.active .step-dot { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .sell-step.done .step-dot  { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+
+    /* Section titles */
+    .form-section {
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .form-section-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Fields */
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { font-size: 0.82rem; font-weight: 600; color: var(--ink-2); }
+    .field label .req { color: var(--accent); margin-left: 2px; }
+    .field input,
+    .field textarea,
+    .field select {
+      padding: 11px 14px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--white);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,98,42,0.1);
+    }
+    .field input.error, .field textarea.error, .field select.error {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+    }
+    .field textarea { resize: vertical; min-height: 100px; }
+    .field-hint { font-size: 0.74rem; color: var(--ink-muted); }
+    .field-error-msg { font-size: 0.74rem; color: #dc2626; display: none; }
+    .field-error-msg.show { display: block; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Character counter */
+    .char-counter { font-size: 0.72rem; color: var(--ink-muted); text-align: right; }
+    .char-counter.near  { color: #f59e0b; }
+    .char-counter.over  { color: #dc2626; }
+
+    /* Image upload */
+    .img-upload-area {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .img-upload-area:hover { border-color: var(--accent); background: var(--cream); }
+    .img-upload-area.dragover { border-color: var(--accent); background: var(--cream); }
+    .img-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .upload-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+    .upload-sub { font-size: 0.78rem; color: var(--ink-muted); }
+
+    /* Image preview */
+    .img-preview { display: none; position: relative; margin-top: 12px; }
+    .img-preview.show { display: block; }
+    .img-preview img { width: 100%; max-height: 220px; object-fit: cover; border-radius: var(--radius-sm); }
+    .img-remove {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,0.6); color: #fff;
+      border: none; border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.8rem; backdrop-filter: blur(4px);
+    }
+
+    /* Price input */
+    .price-wrap { position: relative; }
+    .price-prefix {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-weight: 600; color: var(--ink-muted); pointer-events: none;
+    }
+    .price-wrap input { padding-left: 28px; }
+
+    /* Submit button */
+    .sell-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .sell-submit:hover { background: var(--accent); transform: translateY(-2px); }
+    .sell-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .sell-submit .spin {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .sell-submit.loading .spin { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Alert */
+    .sell-alert {
+      background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2);
+      border-radius: var(--radius-sm); padding: 12px 16px;
+      font-size: 0.85rem; color: #dc2626;
+      display: none; margin-bottom: 16px;
+    }
+    .sell-alert.show { display: block; }
+
+    /* ---- Success state ---- */
+    .sell-success {
+      display: none;
+      text-align: center;
+      padding: 48px 32px;
+    }
+    .sell-success.show { display: block; }
+    .success-circle {
+      width: 72px; height: 72px;
+      background: #dcfce7; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      color: #15803d;
+    }
+
+    /* ---- Sidebar ---- */
+    .sell-sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+    .sell-preview-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: sticky;
+      top: calc(var(--header-h) + 20px);
+    }
+    .sell-preview-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-live {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sell-preview-img {
+      aspect-ratio: 1;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      overflow: hidden;
+    }
+    .sell-preview-img img { width: 100%; height: 100%; object-fit: cover; }
+    .sell-preview-body { padding: 14px 16px; }
+    .preview-cat { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); margin-bottom: 4px; }
+    .preview-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--ink); min-height: 24px; }
+    .preview-price { font-family: var(--font-display); font-size: 1.25rem; font-weight: 900; color: var(--accent); }
+    .preview-cond { font-size: 0.72rem; color: var(--ink-muted); margin-top: 4px; }
+    .preview-placeholder { color: var(--ink-muted); font-style: italic; }
+
+    .sell-info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .sell-info-card h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; }
+    .sell-tip {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.78rem; color: var(--ink-muted); margin-bottom: 10px;
+    }
+    .sell-tip:last-child { margin-bottom: 0; }
+    .sell-tip svg { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+    /* Condition selector */
+    .condition-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cond-pill {
+      padding: 7px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; background: transparent;
+      font-family: var(--font-body);
+      color: var(--ink-2);
+      transition: var(--transition);
+    }
+    .cond-pill:hover { border-color: var(--ink); }
+    .cond-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .cond-pill[data-cond="new"].active { background: #16a34a; border-color: #16a34a; }
+    .cond-pill[data-cond="used"].active { background: #d97706; border-color: #d97706; }
+    .cond-pill[data-cond="refurbished"].active { background: #2563eb; border-color: #2563eb; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--ink); color: #fff; padding: 12px 24px;
+      border-radius: var(--radius-pill); font-size: 0.875rem; font-weight: 500;
+      z-index: 9999; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 900px) {
+      .sell-layout { grid-template-columns: 1fr; padding: 20px 20px 60px; }
+      .sell-preview-card { position: static; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grain" aria-hidden="true"></canvas>
+
+  <div class="announce-bar">
+    <span>✦ Selling is free — no listing fees ever</span>
+    <span class="divider">|</span>
+    <span>Your ad goes live instantly ✦</span>
+    <span class="divider">|</span>
+    <span>38,000+ active buyers on VibeCart ✦</span>
+  </div>
+
+  <header class="header" id="header">
+    <nav class="nav">
+      <ul class="nav-left">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="marketplace.html">Marketplace</a></li>
+      </ul>
+      <a href="index.html" class="nav-logo">Vibe<span>Cart</span></a>
+      <div class="nav-right">
+        <a href="account.html" class="icon-btn" id="navAccountLink" aria-label="Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+        <a href="sell.html" class="btn-fill" style="padding:9px 20px;font-size:0.8rem">+ Post Ad</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="sell-layout">
+
+    <!-- Form -->
+    <div>
+      <div class="sell-form-card">
+        <div class="sell-form-header">
+          <h1>Post a New Ad</h1>
+          <p>Your listing goes live instantly and is visible to all VibeCart shoppers.</p>
+        </div>
+
+        <div class="sell-form-body" id="formBody">
+
+          <!-- Progress -->
+          <div class="sell-steps">
+            <div class="sell-step active" id="step1"><div class="step-dot">1</div> Details</div>
+            <div class="step-line"></div>
+            <div class="sell-step" id="step2"><div class="step-dot">2</div> Photo</div>
+            <div class="step-line"></div>
+            <div class="sell-step" id="step3"><div class="step-dot">3</div> Contact</div>
+          </div>
+
+          <div class="sell-alert" id="sellAlert"></div>
+
+          <form id="sellForm" enctype="multipart/form-data" novalidate>
+
+            <!-- Section 1: Product details -->
+            <div class="form-section">
+              <div class="form-section-label">Product Details</div>
+
+              <div class="field">
+                <label>Title <span class="req">*</span></label>
+                <input type="text" id="adTitle" placeholder="e.g. Sony WH-1000XM5 Headphones — like new" maxlength="100" />
+                <div style="display:flex;justify-content:space-between">
+                  <span class="field-error-msg" id="adTitleErr"></span>
+                  <span class="char-counter" id="titleCounter">0 / 100</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Description <span class="req">*</span></label>
+                <textarea id="adDesc" placeholder="Describe the item — condition, age, what's included, reason for selling…" maxlength="1000" rows="4"></textarea>
+                <div style="display:flex;justify-content:space-between">
+                  <span class="field-error-msg" id="adDescErr"></span>
+                  <span class="char-counter" id="descCounter">0 / 1000</span>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Category <span class="req">*</span></label>
+                  <select id="adCat">
+                    <option value="">Select a category</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="apparel">Apparel</option>
+                    <option value="home">Home &amp; Living</option>
+                    <option value="beauty">Beauty</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <span class="field-error-msg" id="adCatErr"></span>
+                </div>
+
+                <div class="field">
+                  <label>Price (USD) <span class="req">*</span></label>
+                  <div class="price-wrap">
+                    <span class="price-prefix">$</span>
+                    <input type="number" id="adPrice" placeholder="0.00" min="0" step="0.01" />
+                  </div>
+                  <span class="field-error-msg" id="adPriceErr"></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Condition <span class="req">*</span></label>
+                <div class="condition-pills">
+                  <button type="button" class="cond-pill active" data-cond="new">New</button>
+                  <button type="button" class="cond-pill" data-cond="used">Used</button>
+                  <button type="button" class="cond-pill" data-cond="refurbished">Refurbished</button>
+                </div>
+                <input type="hidden" id="adCondition" value="new" />
+              </div>
+            </div>
+
+            <!-- Section 2: Photo -->
+            <div class="form-section">
+              <div class="form-section-label">Product Photo</div>
+              <div class="img-upload-area" id="uploadArea">
+                <input type="file" id="adImage" name="image" accept="image/jpeg,image/png,image/webp" />
+                <div class="upload-icon">📷</div>
+                <div class="upload-title">Click to upload or drag &amp; drop</div>
+                <div class="upload-sub">JPG, PNG or WebP · Max 5 MB · Ads with photos get 3× more views</div>
+              </div>
+              <div class="img-preview" id="imgPreview">
+                <img id="previewImg" src="" alt="Preview" />
+                <button type="button" class="img-remove" id="removeImg">✕</button>
+              </div>
+            </div>
+
+            <!-- Section 3: Contact info -->
+            <div class="form-section">
+              <div class="form-section-label">Seller Information</div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Your name <span class="req">*</span></label>
+                  <input type="text" id="adSellerName" placeholder="Jane Smith" autocomplete="name" />
+                  <span class="field-error-msg" id="adNameErr"></span>
+                </div>
+                <div class="field">
+                  <label>Phone (optional)</label>
+                  <input type="tel" id="adPhone" placeholder="+1 555 000 0000" autocomplete="tel" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Email address <span class="req">*</span></label>
+                <input type="email" id="adEmail" placeholder="you@example.com" autocomplete="email" />
+                <span class="field-error-msg" id="adEmailErr"></span>
+                <span class="field-hint">Shown to buyers who want to contact you.</span>
+              </div>
+            </div>
+
+            <button type="submit" class="sell-submit" id="sellSubmit">
+              <span id="sellSubmitTxt">Publish Ad — It's Free</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" id="sellSubmitArr"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              <div class="spin"></div>
+            </button>
+
+          </form>
+
+        </div>
+
+        <!-- Success state -->
+        <div class="sell-success" id="sellSuccess">
+          <div class="success-circle">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:900;margin-bottom:8px">Ad Published! 🎉</h2>
+          <p style="color:var(--ink-muted);margin-bottom:24px">Your listing is now live and visible to all VibeCart shoppers.</p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a href="marketplace.html" class="btn-fill" style="padding:12px 24px">View Marketplace →</a>
+            <button id="postAnotherBtn" class="btn-line" style="padding:12px 24px;display:inline-flex">Post Another Ad</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sidebar: live preview + tips -->
+    <div class="sell-sidebar">
+      <div class="sell-preview-card">
+        <div class="sell-preview-header">
+          <div class="preview-live"></div>
+          Live Preview
+        </div>
+        <div class="sell-preview-img" id="previewCardImg">
+          <span>📦</span>
+        </div>
+        <div class="sell-preview-body">
+          <div class="preview-cat" id="previewCat">Category</div>
+          <div class="preview-title preview-placeholder" id="previewTitle">Your title will appear here</div>
+          <div class="preview-price" id="previewPrice">$—</div>
+          <div class="preview-cond" id="previewCond">Condition: New</div>
+        </div>
+      </div>
+
+      <div class="sell-info-card">
+        <h4>Tips for a great listing</h4>
+        <div class="sell-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Add a clear, well-lit photo — listings with photos get <strong>3× more views</strong></span>
+        </div>
+        <div class="sell-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Be specific in the title — include brand, model and key specs</span>
+        </div>
+        <div class="sell-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Price fairly — check similar listings for reference</span>
+        </div>
+        <div class="sell-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Listing is completely <strong>free</strong> — no fees, ever</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="auth.js"></script>
+  <script src="ads.js"></script>
+  <script>
+    // Grain
+    const grain = document.getElementById('grain');
+    const gctx  = grain.getContext('2d');
+    function resize() { grain.width = innerWidth; grain.height = innerHeight; }
+    function drawGrain() {
+      const w=grain.width,h=grain.height,img=gctx.createImageData(w,h);
+      for(let i=0;i<img.data.length;i+=4){const v=(Math.random()*255)|0;img.data[i]=img.data[i+1]=img.data[i+2]=v;img.data[i+3]=18;}
+      gctx.putImageData(img,0,0);requestAnimationFrame(drawGrain);
+    }
+    resize();window.addEventListener('resize',resize);drawGrain();
+    window.addEventListener('scroll',()=>document.getElementById('header').classList.toggle('scrolled',scrollY>10));
+
+    // Pre-fill seller info from session
+    const session = Auth.getSession();
+    if (session) {
+      document.getElementById('adSellerName').value = `${session.firstName} ${session.lastName}`;
+      document.getElementById('adEmail').value = session.email;
+    }
+
+    // ---- Condition pills ----
+    document.querySelectorAll('.cond-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.cond-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        document.getElementById('adCondition').value = pill.dataset.cond;
+        updatePreview();
+      });
+    });
+
+    // ---- Image upload ----
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('adImage');
+    const imgPreview = document.getElementById('imgPreview');
+    const previewImg = document.getElementById('previewImg');
+    const previewCardImg = document.getElementById('previewCardImg');
+
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault(); uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleImage(file);
+    });
+    imageInput.addEventListener('change', () => { if (imageInput.files[0]) handleImage(imageInput.files[0]); });
+
+    function handleImage(file) {
+      if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5 MB'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        const src = e.target.result;
+        previewImg.src = src;
+        imgPreview.classList.add('show');
+        uploadArea.style.display = 'none';
+        previewCardImg.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover" />`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('removeImg').addEventListener('click', () => {
+      imageInput.value = '';
+      imgPreview.classList.remove('show');
+      uploadArea.style.display = '';
+      previewCardImg.innerHTML = '<span>📦</span>';
+    });
+
+    // ---- Live preview ----
+    function updatePreview() {
+      const title   = document.getElementById('adTitle').value.trim();
+      const price   = document.getElementById('adPrice').value;
+      const cat     = document.getElementById('adCat').value;
+      const cond    = document.getElementById('adCondition').value;
+      const titleEl = document.getElementById('previewTitle');
+      titleEl.textContent = title || 'Your title will appear here';
+      titleEl.classList.toggle('preview-placeholder', !title);
+      document.getElementById('previewPrice').textContent = price ? '$' + parseFloat(price).toFixed(2) : '$—';
+      document.getElementById('previewCat').textContent   = cat ? categoryLabel(cat) : 'Category';
+      document.getElementById('previewCond').textContent  = 'Condition: ' + cond.charAt(0).toUpperCase() + cond.slice(1);
+    }
+
+    ['adTitle','adPrice','adCat'].forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+
+    // ---- Character counters ----
+    function counter(inputId, counterId, max) {
+      const el = document.getElementById(inputId);
+      const ct = document.getElementById(counterId);
+      el.addEventListener('input', () => {
+        const n = el.value.length;
+        ct.textContent = `${n} / ${max}`;
+        ct.classList.toggle('near', n >= max * 0.85);
+        ct.classList.toggle('over', n >= max);
+      });
+    }
+    counter('adTitle', 'titleCounter', 100);
+    counter('adDesc', 'descCounter', 1000);
+
+    // ---- Steps indicator ----
+    function setStep(n) {
+      for (let i = 1; i <= 3; i++) {
+        const s = document.getElementById('step'+i);
+        s.classList.remove('active','done');
+        if (i < n) s.classList.add('done');
+        else if (i === n) s.classList.add('active');
+      }
+    }
+    document.getElementById('adTitle').addEventListener('focus', () => setStep(1));
+    document.getElementById('adImage').addEventListener('change', () => setStep(2));
+    document.getElementById('adEmail').addEventListener('focus', () => setStep(3));
+
+    // ---- Validation ----
+    const showErr = (id, msg) => { const e=document.getElementById(id); e.textContent=msg; e.classList.toggle('show',!!msg); };
+    function validate() {
+      let ok = true;
+      const title = document.getElementById('adTitle').value.trim();
+      const desc  = document.getElementById('adDesc').value.trim();
+      const cat   = document.getElementById('adCat').value;
+      const price = document.getElementById('adPrice').value;
+      const name  = document.getElementById('adSellerName').value.trim();
+      const email = document.getElementById('adEmail').value.trim();
+
+      showErr('adTitleErr', !title ? 'Title is required.' : title.length > 100 ? 'Max 100 chars.' : '');
+      if (!title || title.length > 100) ok = false;
+
+      showErr('adDescErr', !desc ? 'Description is required.' : '');
+      if (!desc) ok = false;
+
+      showErr('adCatErr', !cat ? 'Select a category.' : '');
+      if (!cat) ok = false;
+
+      showErr('adPriceErr', !price ? 'Price is required.' : isNaN(price)||parseFloat(price)<0 ? 'Enter a valid price.' : '');
+      if (!price || isNaN(price) || parseFloat(price) < 0) ok = false;
+
+      showErr('adNameErr', !name ? 'Your name is required.' : '');
+      if (!name) ok = false;
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showErr('adEmailErr', !emailOk ? 'Enter a valid email address.' : '');
+      if (!emailOk) ok = false;
+
+      return ok;
+    }
+
+    // ---- Submit ----
+    document.getElementById('sellForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      document.getElementById('sellAlert').classList.remove('show');
+
+      if (!validate()) return;
+
+      const btn = document.getElementById('sellSubmit');
+      btn.disabled = true; btn.classList.add('loading');
+      document.getElementById('sellSubmitTxt').textContent = 'Publishing…';
+      document.getElementById('sellSubmitArr').style.display = 'none';
+
+      const fd = new FormData();
+      fd.append('title',       document.getElementById('adTitle').value.trim());
+      fd.append('description', document.getElementById('adDesc').value.trim());
+      fd.append('price',       document.getElementById('adPrice').value);
+      fd.append('category',    document.getElementById('adCat').value);
+      fd.append('condition',   document.getElementById('adCondition').value);
+      fd.append('sellerName',  document.getElementById('adSellerName').value.trim());
+      fd.append('sellerEmail', document.getElementById('adEmail').value.trim());
+      fd.append('phone',       document.getElementById('adPhone').value.trim());
+      if (session) fd.append('sellerId', session.id);
+      const imgFile = document.getElementById('adImage').files[0];
+      if (imgFile) fd.append('image', imgFile);
+
+      const result = await AdsAPI.create(fd);
+
+      btn.disabled = false; btn.classList.remove('loading');
+      document.getElementById('sellSubmitTxt').textContent = 'Publish Ad — It\'s Free';
+      document.getElementById('sellSubmitArr').style.display = '';
+
+      if (!result.ok) {
+        const al = document.getElementById('sellAlert');
+        al.textContent = result.error || 'Could not publish ad. Is the server running?';
+        al.classList.add('show');
+        return;
+      }
+
+      // Show success
+      document.getElementById('formBody').style.display = 'none';
+      document.getElementById('sellSuccess').classList.add('show');
+    });
+
+    document.getElementById('postAnotherBtn').addEventListener('click', () => {
+      document.getElementById('formBody').style.display = 'block';
+      document.getElementById('sellSuccess').classList.remove('show');
+      document.getElementById('sellForm').reset();
+      document.getElementById('adCondition').value = 'new';
+      document.querySelectorAll('.cond-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+      document.getElementById('imgPreview').classList.remove('show');
+      document.getElementById('uploadArea').style.display = '';
+      previewCardImg.innerHTML = '<span>📦</span>';
+      updatePreview();
+    });
+
+    // ---- Toast ----
+    let tt;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('show'),2400);
+    }
+  </script>
+</body>
+</html>

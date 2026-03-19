@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marketplace — VibeCart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="shop.css"/>
+  <style>
+    /* Ad card */
+    .ad-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+    .ad-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(26,23,20,0.1); border-color: var(--border-strong); }
+    .ad-card-image {
+      position: relative;
+      aspect-ratio: 1;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      overflow: hidden;
+    }
+    .ad-card-img { width:100%; height:100%; object-fit:cover; transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .ad-card:hover .ad-card-img { transform: scale(1.06); }
+    .ad-card-img-fallback { width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:var(--cream-2); }
+    .ad-card-cond {
+      position: absolute; top: 10px; left: 10px;
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 3px; color: #fff;
+    }
+    .ad-card-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(26,23,20,0.75); color: #fff;
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 3px; backdrop-filter: blur(4px);
+    }
+    .ad-card-body { padding: 14px 14px 14px; }
+    .ad-card-category { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); margin-bottom: 4px; }
+    .ad-card-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3; }
+    .ad-card-seller { font-size: 0.72rem; color: var(--ink-muted); margin-bottom: 8px; }
+    .ad-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px; }
+    .ad-card-price { font-family: var(--font-display); font-size: 1.15rem; font-weight: 900; color: var(--ink); }
+    .ad-card-time { font-size: 0.68rem; color: var(--ink-muted); }
+
+    /* Marketplace header */
+    .mkt-hero {
+      background: var(--ink);
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .mkt-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .mkt-hero h1 em { font-style: italic; color: var(--accent); }
+    .mkt-hero p { color: rgba(255,255,255,0.55); font-size: 1rem; max-width: 480px; margin: 0 auto 24px; }
+    .mkt-hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .mkt-stats { display: flex; gap: 32px; justify-content: center; margin-top: 32px; }
+    .mkt-stat-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: #fff; }
+    .mkt-stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* Layout */
+    .mkt-body {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px 80px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Ad grid */
+    .ads-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+
+    /* Loading skeletons */
+    .skeleton { background: linear-gradient(90deg,var(--cream-2) 25%,var(--cream-3) 50%,var(--cream-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .skel-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .skel-img { aspect-ratio:1; width:100%; }
+    .skel-body { padding:14px; display:flex; flex-direction:column; gap:8px; }
+    .skel-line { height:12px; border-radius:6px; }
+
+    /* Detail modal */
+    .ad-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(26,23,20,0.65);
+      z-index: 960; display: flex;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    .ad-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .ad-modal {
+      background: var(--white);
+      border-radius: 16px;
+      max-width: 700px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      position: relative;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .ad-modal-overlay.open .ad-modal { transform: none; }
+    .ad-modal-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 32px; height: 32px; background: var(--cream);
+      border: none; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; color: var(--ink-2); z-index: 1;
+      transition: background 0.2s;
+    }
+    .ad-modal-close:hover { background: var(--cream-3); }
+    .ad-modal-img {
+      aspect-ratio: 16/9; background: var(--cream-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6rem; overflow: hidden;
+      border-radius: 16px 16px 0 0;
+    }
+    .ad-modal-img img { width:100%; height:100%; object-fit:cover; }
+    .ad-modal-body { padding: 28px; }
+    .ad-modal-meta { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+    .ad-modal-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; margin-bottom: 10px; line-height: 1.2; }
+    .ad-modal-price { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--accent); margin-bottom: 16px; }
+    .ad-modal-desc { font-size: 0.9rem; color: var(--ink-light); line-height: 1.7; margin-bottom: 24px; white-space: pre-wrap; }
+    .ad-seller-card {
+      background: var(--cream); border-radius: var(--radius-sm);
+      padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+    }
+    .ad-seller-av {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; flex-shrink: 0;
+    }
+    .ad-seller-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+    .ad-seller-since { font-size: 0.75rem; color: var(--ink-muted); }
+    .ad-contact-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-contact {
+      flex: 1; padding: 12px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; text-align: center; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: var(--transition);
+    }
+    .btn-contact-primary { background: var(--ink); color: #fff; border: none; }
+    .btn-contact-primary:hover { background: var(--accent); }
+    .btn-contact-sec { background: transparent; color: var(--ink-2); border: 1.5px solid var(--border-strong); }
+    .btn-contact-sec:hover { border-color: var(--ink); background: var(--cream); }
+
+    /* Sort bar */
+    .mkt-sort-bar {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .mkt-count { font-size: 0.85rem; color: var(--ink-muted); }
+    .mkt-count strong { color: var(--ink-2); }
+
+    /* Search bar in header */
+    .mkt-search {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-pill); padding: 10px 20px;
+      max-width: 520px; margin: 0 auto;
+    }
+    .mkt-search input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-family: var(--font-body); font-size: 0.95rem; color: #fff;
+    }
+    .mkt-search input::placeholder { color: rgba(255,255,255,0.4); }
+    .mkt-search svg { color: rgba(255,255,255,0.4); flex-shrink: 0; }
+
+    /* Empty state */
+    .mkt-empty { text-align: center; padding: 80px 20px; }
+    .mkt-empty-icon { font-size: 4rem; margin-bottom: 16px; }
+    .mkt-empty h3 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .mkt-empty p { color: var(--ink-muted); margin-bottom: 24px; }
+
+    /* Toast */
+    .toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:var(--radius-pill);font-size:0.875rem;font-weight:500;z-index:9999;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.2); }
+    .toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+
+    @media (max-width:1100px) { .ads-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:900px) {
+      .mkt-body { grid-template-columns:1fr; padding:20px 20px 60px; }
+      .mkt-hero { padding:36px 20px; }
+      .mkt-stats { gap:20px; }
+      .ads-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width:560px) {
+      .ads-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grain" aria-hidden="true"></canvas>
+
+  <div class="announce-bar">
+    <span>✦ Free to buy and sell</span>
+    <span class="divider">|</span>
+    <span>Ads go live instantly ✦</span>
+    <span class="divider">|</span>
+    <span>38,000+ active shoppers ✦</span>
+  </div>
+
+  <header class="header" id="header">
+    <nav class="nav">
+      <ul class="nav-left">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="marketplace.html" style="color:var(--accent)">Marketplace</a></li>
+      </ul>
+      <a href="index.html" class="nav-logo">Vibe<span>Cart</span></a>
+      <div class="nav-right">
+        <a href="account.html" class="icon-btn" id="navAccountLink" aria-label="Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+        <a href="sell.html" class="btn-fill" style="padding:9px 20px;font-size:0.8rem">+ Post Ad</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <div class="mkt-hero">
+    <h1>The VibeCart <em>Marketplace</em></h1>
+    <p>Buy and sell directly with the VibeCart community. Every listing is posted by a real person.</p>
+    <div class="mkt-search" style="max-width:480px;margin:0 auto 20px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="heroSearch" placeholder="Search listings — e.g. iPhone, jacket, lamp…" autocomplete="off" />
+    </div>
+    <div class="mkt-hero-actions">
+      <a href="sell.html" class="btn-fill" style="padding:12px 28px">Post a Free Ad →</a>
+      <a href="#listings" class="btn-line" style="padding:12px 24px;color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)">Browse Listings ↓</a>
+    </div>
+    <div class="mkt-stats">
+      <div><div class="mkt-stat-val" id="statTotal">—</div><div class="mkt-stat-lbl">Active listings</div></div>
+      <div><div class="mkt-stat-val">Free</div><div class="mkt-stat-lbl">To list &amp; buy</div></div>
+      <div><div class="mkt-stat-val">Instant</div><div class="mkt-stat-lbl">Ad goes live</div></div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="mkt-body" id="listings">
+
+    <!-- Sidebar filters -->
+    <aside class="shop-sidebar" id="shopSidebar" style="position:sticky;top:calc(var(--header-h) + 20px)">
+      <div class="sidebar-inner">
+        <div class="sidebar-mobile-header" style="display:none">
+          <strong>Filters</strong>
+          <button class="sidebar-close-btn" id="sidebarClose">✕</button>
+        </div>
+
+        <div class="filter-group">
+          <div class="sidebar-search" style="margin:14px 14px 0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="sidebarSearch" placeholder="Search listings…" />
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-group-header open" data-target="f-cat">
+            <span>Category</span><span class="filter-arrow" style="transform:rotate(90deg)">›</span>
+          </button>
+          <div class="filter-group-body open" id="f-cat">
+            <label class="filter-check active-check"><input type="radio" name="mkt-cat" value="all" checked /> All Categories</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="electronics" /> Electronics</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="apparel" /> Apparel</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="home" /> Home &amp; Living</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="beauty" /> Beauty</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="accessories" /> Accessories</label>
+            <label class="filter-check"><input type="radio" name="mkt-cat" value="other" /> Other</label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-group-header open" data-target="f-cond">
+            <span>Condition</span><span class="filter-arrow" style="transform:rotate(90deg)">›</span>
+          </button>
+          <div class="filter-group-body open" id="f-cond">
+            <label class="filter-check"><input type="checkbox" value="new" class="cond-check" /> New</label>
+            <label class="filter-check"><input type="checkbox" value="used" class="cond-check" /> Used</label>
+            <label class="filter-check"><input type="checkbox" value="refurbished" class="cond-check" /> Refurbished</label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-group-header open" data-target="f-sort">
+            <span>Sort by</span><span class="filter-arrow" style="transform:rotate(90deg)">›</span>
+          </button>
+          <div class="filter-group-body open" id="f-sort">
+            <label class="filter-check active-check"><input type="radio" name="mkt-sort" value="newest" checked /> Newest first</label>
+            <label class="filter-check"><input type="radio" name="mkt-sort" value="price-asc" /> Price: Low to High</label>
+            <label class="filter-check"><input type="radio" name="mkt-sort" value="price-desc" /> Price: High to Low</label>
+          </div>
+        </div>
+
+        <button class="btn-apply-filters" id="applyMktFilters" style="margin:0 14px 8px;width:calc(100% - 28px)">Apply Filters</button>
+        <button class="btn-reset-filters" id="resetMktFilters" style="margin:0 14px 14px;width:calc(100% - 28px)">Reset</button>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Listings -->
+    <section>
+      <div class="mkt-sort-bar">
+        <div class="mkt-count" id="adsCount">Loading listings…</div>
+        <button class="btn-filter-toggle" id="filterToggle" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          Filters
+        </button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button id="refreshBtn" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.78rem;font-weight:600;cursor:pointer;background:var(--white);color:var(--ink-2);transition:var(--transition)" onmouseover="this.style.borderColor='var(--ink)'" onmouseout="this.style.borderColor='var(--border)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+      <div class="ads-grid" id="adsGrid"></div>
+    </section>
+  </div>
+
+  <!-- Ad detail modal -->
+  <div class="ad-modal-overlay" id="adModal">
+    <div class="ad-modal">
+      <button class="ad-modal-close" id="adModalClose">✕</button>
+      <div id="adModalContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="auth.js"></script>
+  <script src="ads.js"></script>
+  <script>
+    // Grain
+    const grain = document.getElementById('grain');
+    const gctx = grain.getContext('2d');
+    function resize() { grain.width=innerWidth;grain.height=innerHeight; }
+    function drawGrain() {
+      const w=grain.width,h=grain.height,img=gctx.createImageData(w,h);
+      for(let i=0;i<img.data.length;i+=4){const v=(Math.random()*255)|0;img.data[i]=img.data[i+1]=img.data[i+2]=v;img.data[i+3]=18;}
+      gctx.putImageData(img,0,0);requestAnimationFrame(drawGrain);
+    }
+    resize();window.addEventListener('resize',resize);drawGrain();
+    window.addEventListener('scroll',()=>document.getElementById('header').classList.toggle('scrolled',scrollY>10));
+
+    // Filter accordions
+    document.querySelectorAll('.filter-group-header[data-target]').forEach(btn => {
+      const t = document.getElementById(btn.dataset.target);
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('open');
+        t.classList.toggle('open');
+        btn.querySelector('.filter-arrow').style.transform = t.classList.contains('open') ? 'rotate(90deg)' : '';
+      });
+    });
+
+    // State
+    let allAds = [];
+    let activeFilters = { category: 'all', conditions: new Set(), sort: 'newest', search: '' };
+    let autoRefreshInterval;
+
+    // Load stats
+    async function loadStats() {
+      const r = await AdsAPI.stats();
+      if (r.ok) document.getElementById('statTotal').textContent = r.totalAds;
+    }
+    loadStats();
+
+    // Load and render ads
+    async function loadAds() {
+      const grid = document.getElementById('adsGrid');
+      grid.innerHTML = Array(6).fill(0).map(() => `
+        <div class="skel-card">
+          <div class="skeleton skel-img"></div>
+          <div class="skel-body">
+            <div class="skeleton skel-line" style="width:40%"></div>
+            <div class="skeleton skel-line" style="width:80%"></div>
+            <div class="skeleton skel-line" style="width:60%"></div>
+          </div>
+        </div>
+      `).join('');
+
+      const result = await AdsAPI.list();
+      if (!result.ok) {
+        grid.innerHTML = `<div class="mkt-empty" style="grid-column:1/-1">
+          <div class="mkt-empty-icon">⚠️</div>
+          <h3>Server not running</h3>
+          <p>Start the backend server to see listings.<br><code style="font-size:0.8rem;background:var(--cream);padding:4px 8px;border-radius:4px">npm start</code></p>
+        </div>`;
+        document.getElementById('adsCount').textContent = 'Server offline';
+        return;
+      }
+
+      allAds = result.ads;
+      renderAds();
+    }
+
+    function renderAds() {
+      let ads = [...allAds];
+
+      // Search
+      if (activeFilters.search) {
+        const q = activeFilters.search.toLowerCase();
+        ads = ads.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q) || a.sellerName.toLowerCase().includes(q));
+      }
+      // Category
+      if (activeFilters.category !== 'all') ads = ads.filter(a => a.category === activeFilters.category);
+      // Condition
+      if (activeFilters.conditions.size > 0) ads = ads.filter(a => activeFilters.conditions.has(a.condition));
+      // Sort
+      if (activeFilters.sort === 'price-asc')  ads.sort((a,b) => a.price - b.price);
+      if (activeFilters.sort === 'price-desc') ads.sort((a,b) => b.price - a.price);
+      if (activeFilters.sort === 'newest')     ads.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const countEl = document.getElementById('adsCount');
+      const grid    = document.getElementById('adsGrid');
+
+      if (ads.length === 0) {
+        countEl.innerHTML = 'No listings found';
+        grid.innerHTML = `<div class="mkt-empty" style="grid-column:1/-1">
+          <div class="mkt-empty-icon">🔍</div>
+          <h3>No listings found</h3>
+          <p>Try adjusting your filters or be the first to post in this category!</p>
+          <a href="sell.html" class="btn-fill" style="display:inline-block">Post an Ad →</a>
+        </div>`;
+        return;
+      }
+
+      countEl.innerHTML = `Showing <strong>${ads.length}</strong> listing${ads.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = ads.map(ad => AdsAPI.renderCard(ad)).join('');
+
+      // Bind click → open modal
+      grid.querySelectorAll('.ad-card').forEach(card => {
+        card.addEventListener('click', () => openAdModal(card.dataset.id));
+      });
+    }
+
+    // Open ad detail modal
+    async function openAdModal(id) {
+      const ad = allAds.find(a => a.id === id);
+      if (!ad) return;
+
+      // Increment view (fire and forget)
+      AdsAPI.view(id);
+
+      const condColors = { new:'#16a34a', used:'#d97706', refurbished:'#2563eb' };
+      const condColor  = condColors[ad.condition] || '#6b6460';
+      const initials   = ad.sellerName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const imgHtml    = ad.imageUrl
+        ? `<img src="${ad.imageUrl}" alt="${ad.title}" style="width:100%;height:100%;object-fit:cover" />`
+        : `<span style="font-size:6rem">📦</span>`;
+
+      document.getElementById('adModalContent').innerHTML = `
+        <div class="ad-modal-img">${imgHtml}</div>
+        <div class="ad-modal-body">
+          <div class="ad-modal-meta">
+            <span style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted)">${categoryLabel(ad.category)}</span>
+            <span style="background:${condColor};color:#fff;font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:3px">${ad.condition}</span>
+            <span style="font-size:0.72rem;color:var(--ink-muted);margin-left:auto">${AdsAPI.timeAgo(ad.createdAt)} · ${ad.views||0} views</span>
+          </div>
+          <h2 class="ad-modal-title">${ad.title}</h2>
+          <div class="ad-modal-price">${AdsAPI.formatPrice(ad.price)}</div>
+          <p class="ad-modal-desc">${ad.description}</p>
+          <div class="ad-seller-card">
+            <div class="ad-seller-av">${initials}</div>
+            <div>
+              <div class="ad-seller-name">${ad.sellerName}</div>
+              <div class="ad-seller-since">Listed ${AdsAPI.timeAgo(ad.createdAt)}</div>
+            </div>
+          </div>
+          <div class="ad-contact-btns">
+            <a href="mailto:${ad.sellerEmail}?subject=Re: ${encodeURIComponent(ad.title)}&body=Hi ${ad.sellerName},%0A%0AI'm interested in your listing: ${encodeURIComponent(ad.title)} ($${ad.price}).%0A%0ACould you tell me more?" class="btn-contact btn-contact-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email Seller
+            </a>
+            ${ad.phone ? `<a href="tel:${ad.phone}" class="btn-contact btn-contact-sec">📞 ${ad.phone}</a>` : ''}
+            <button class="btn-contact btn-contact-sec" onclick="navigator.clipboard.writeText(window.location.href+'?ad=${ad.id}').then(()=>showToast('Link copied!'))">
+              🔗 Copy Link
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('adModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAdModal() {
+      document.getElementById('adModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('adModalClose').addEventListener('click', closeAdModal);
+    document.getElementById('adModal').addEventListener('click', e => { if (e.target === document.getElementById('adModal')) closeAdModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdModal(); });
+
+    // Filters
+    document.querySelectorAll('input[name="mkt-cat"]').forEach(r => {
+      r.addEventListener('change', () => {
+        activeFilters.category = r.value;
+        document.querySelectorAll('[data-filter="category"],.filter-check').forEach(l => {
+          if (l.querySelector('input[name="mkt-cat"]')) l.classList.toggle('active-check', l.querySelector('input').value === r.value);
+        });
+      });
+    });
+    document.querySelectorAll('.cond-check').forEach(c => {
+      c.addEventListener('change', () => {
+        activeFilters.conditions = new Set([...document.querySelectorAll('.cond-check:checked')].map(x=>x.value));
+      });
+    });
+    document.querySelectorAll('input[name="mkt-sort"]').forEach(r => {
+      r.addEventListener('change', () => {
+        activeFilters.sort = r.value;
+        document.querySelectorAll('.filter-check').forEach(l => {
+          if (l.querySelector('input[name="mkt-sort"]')) l.classList.toggle('active-check', l.querySelector('input').value === r.value);
+        });
+      });
+    });
+
+    let searchDebounce;
+    const heroSearch    = document.getElementById('heroSearch');
+    const sidebarSearch = document.getElementById('sidebarSearch');
+    function onSearch(val) {
+      activeFilters.search = val.trim();
+      heroSearch.value = sidebarSearch.value = val;
+    }
+    heroSearch.addEventListener('input', e => { clearTimeout(searchDebounce); searchDebounce = setTimeout(() => { onSearch(e.target.value); renderAds(); }, 300); });
+    sidebarSearch.addEventListener('input', e => { clearTimeout(searchDebounce); searchDebounce = setTimeout(() => { onSearch(e.target.value); renderAds(); }, 300); });
+
+    document.getElementById('applyMktFilters').addEventListener('click', renderAds);
+    document.getElementById('resetMktFilters').addEventListener('click', () => {
+      activeFilters = { category:'all', conditions:new Set(), sort:'newest', search:'' };
+      document.querySelector('input[name="mkt-cat"][value="all"]').checked = true;
+      document.querySelector('input[name="mkt-sort"][value="newest"]').checked = true;
+      document.querySelectorAll('.cond-check').forEach(c => c.checked = false);
+      heroSearch.value = sidebarSearch.value = '';
+      renderAds();
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => { loadAds(); loadStats(); showToast('Listings refreshed'); });
+
+    // Mobile sidebar
+    document.getElementById('filterToggle').addEventListener('click', () => {
+      document.getElementById('shopSidebar').classList.add('open');
+      const ov = document.getElementById('sidebarOverlay');
+      ov.style.display = 'block'; setTimeout(() => ov.style.opacity='1', 10);
+      document.body.style.overflow = 'hidden';
+    });
+    function closeSidebar() {
+      document.getElementById('shopSidebar').classList.remove('open');
+      const ov = document.getElementById('sidebarOverlay');
+      ov.style.opacity = '0'; setTimeout(() => ov.style.display='none', 350);
+      document.body.style.overflow = '';
+    }
+    document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+    document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+    // Responsive filter toggle
+    function checkMobile() {
+      const isMobile = window.innerWidth <= 900;
+      document.getElementById('filterToggle').style.display = isMobile ? 'flex' : 'none';
+      const sb = document.getElementById('shopSidebar');
+      if (isMobile) { sb.style.position='fixed'; sb.style.zIndex='400'; }
+      else { sb.style.position='sticky'; sb.style.zIndex=''; closeSidebar(); }
+    }
+    window.addEventListener('resize', checkMobile); checkMobile();
+
+    // Check for ?ad= in URL to auto-open
+    const urlAd = new URLSearchParams(window.location.search).get('ad');
+
+    // Toast
+    let tt;
+    function showToast(msg) {
+      const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+      clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2400);
+    }
+
+    // Auto-refresh every 30s
+    loadAds().then(() => {
+      if (urlAd) openAdModal(urlAd);
+      autoRefreshInterval = setInterval(() => { loadAds(); loadStats(); }, 30000);
+    });
+  </script>
+</body>
+</html>

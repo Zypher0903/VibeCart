@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop — VibeCart</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="shop.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <canvas id="grain" aria-hidden="true"></canvas>
+
+    <!-- ========== ANNOUNCEMENT BAR ========== -->
+    <div class="announce-bar">
+        <span>✦ Free shipping on orders over $50</span>
+        <span class="divider">|</span>
+        <span>New arrivals every Friday ✦</span>
+        <span class="divider">|</span>
+        <span>Use code <strong>VIBE15</strong> for 15% off ✦</span>
+    </div>
+
+    <!-- ========== NAVIGATION ========== -->
+    <header class="header" id="header">
+        <nav class="nav">
+            <ul class="nav-left">
+                <li class="has-dropdown">
+                    <a href="shop.html">Shop <span class="chevron">›</span></a>
+                    <div class="dropdown">
+                        <a href="shop.html?filter=new">New Arrivals</a>
+                        <a href="shop.html?filter=bestseller">Best Sellers</a>
+                        <a href="shop.html?filter=sale">Sale</a>
+                        <a href="shop.html">Collections</a>
+                    </div>
+                </li>
+                <li class="has-dropdown">
+                    <a href="shop.html">Categories <span class="chevron">›</span></a>
+                    <div class="dropdown">
+                        <a href="shop.html?cat=electronics">Electronics</a>
+                        <a href="shop.html?cat=apparel">Apparel</a>
+                        <a href="shop.html?cat=home">Home &amp; Living</a>
+                        <a href="shop.html?cat=beauty">Beauty</a>
+                        <a href="shop.html?cat=accessories">Accessories</a>
+                    </div>
+                </li>
+                <li><a href="shop.html?filter=sale">Deals</a></li>
+                <li><a href="marketplace.html">Marketplace</a></li>
+            </ul>
+
+            <a href="index.html" class="nav-logo">Vibe<span>Cart</span></a>
+
+            <div class="nav-right">
+                <button class="icon-btn" id="searchToggle" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </button>
+                <a href="account.html" class="icon-btn" aria-label="Account" id="navAccountLink">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </a>
+                <a href="#" class="icon-btn" aria-label="Wishlist">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                </a>
+                <a href="#" class="icon-btn cart-btn" aria-label="Cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="search-bar" id="searchBar">
+            <div class="search-inner">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" placeholder="Search products…" id="searchInput" autocomplete="off" />
+                <button class="search-close" id="searchClose">✕</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile drawer -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <span class="nav-logo">Vibe<span>Cart</span></span>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <details>
+                <summary>Shop</summary>
+                <a href="#">New Arrivals</a>
+                <a href="shop.html?filter=bestseller">Best Sellers</a>
+                <a href="shop.html?filter=sale">Sale</a>
+            </details>
+            <details>
+                <summary>Categories</summary>
+                <a href="shop.html?cat=electronics">Electronics</a>
+                <a href="shop.html?cat=apparel">Apparel</a>
+                <a href="shop.html?cat=home">Home &amp; Living</a>
+                <a href="shop.html?cat=beauty">Beauty</a>
+                <a href="shop.html?cat=accessories">Accessories</a>
+            </details>
+            <a href="shop.html?filter=sale">Deals</a>
+            <a href="account.html" id="drawerAccountLink">Account</a>
+            <a href="#">Wishlist</a>
+        </nav>
+    </div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- ========== SHOP PAGE ========== -->
+    <main class="shop-main">
+
+        <!-- Page header -->
+        <div class="shop-header">
+            <div class="shop-header-inner">
+                <div>
+                    <nav class="breadcrumb" aria-label="Breadcrumb">
+                        <a href="index.html">Home</a>
+                        <span>›</span>
+                        <span class="breadcrumb-current">Shop</span>
+                    </nav>
+                    <h1 class="shop-title">All Products</h1>
+                    <p class="shop-subtitle" id="productCount">Showing <strong>24</strong> products</p>
+                </div>
+                <div class="shop-header-actions">
+                    <!-- Mobile filter toggle -->
+                    <button class="btn-filter-toggle" id="filterToggle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="4" y1="6" x2="20" y2="6" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                            <line x1="11" y1="18" x2="13" y2="18" />
+                        </svg>
+                        Filters
+                        <span class="filter-badge" id="filterBadge" style="display:none">0</span>
+                    </button>
+                    <!-- Sort -->
+                    <div class="sort-wrap">
+                        <label for="sortSelect">Sort:</label>
+                        <select id="sortSelect" class="sort-select">
+                            <option value="featured">Featured</option>
+                            <option value="newest">Newest</option>
+                            <option value="price-asc">Price: Low–High</option>
+                            <option value="price-desc">Price: High–Low</option>
+                            <option value="rating">Best Rated</option>
+                            <option value="popular">Most Popular</option>
+                        </select>
+                    </div>
+                    <!-- Grid/List toggle -->
+                    <div class="view-toggle">
+                        <button class="view-btn active" id="gridView" aria-label="Grid view">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </button>
+                        <button class="view-btn" id="listView" aria-label="List view">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6" />
+                                <line x1="8" y1="12" x2="21" y2="12" />
+                                <line x1="8" y1="18" x2="21" y2="18" />
+                                <line x1="3" y1="6" x2="3.01" y2="6" />
+                                <line x1="3" y1="12" x2="3.01" y2="12" />
+                                <line x1="3" y1="18" x2="3.01" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active filters -->
+            <div class="active-filters" id="activeFilters" style="display:none">
+                <span class="active-filters-label">Active filters:</span>
+                <div class="active-filter-tags" id="activeFilterTags"></div>
+                <button class="clear-all-btn" id="clearAllFilters">Clear all</button>
+            </div>
+        </div>
+
+        <!-- Shop body: sidebar + grid -->
+        <div class="shop-body">
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside class="shop-sidebar" id="shopSidebar">
+                <div class="sidebar-inner">
+
+                    <!-- Close btn (mobile) -->
+                    <div class="sidebar-mobile-header">
+                        <strong>Filters</strong>
+                        <button class="sidebar-close-btn" id="sidebarClose">✕</button>
+                    </div>
+
+                    <!-- Search within -->
+                    <div class="filter-group">
+                        <div class="sidebar-search">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input type="text" id="productSearch" placeholder="Search products…" />
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="filter-group">
+                        <button class="filter-group-header" data-target="cat-body">
+                            <span>Category</span>
+                            <span class="filter-arrow">›</span>
+                        </button>
+                        <div class="filter-group-body" id="cat-body">
+                            <label class="filter-check active-check" data-filter="category" data-value="all">
+                                <input type="radio" name="category" value="all" checked /> All Categories
+                                <span class="check-count">24</span>
+                            </label>
+                            <label class="filter-check" data-filter="category" data-value="electronics">
+                                <input type="radio" name="category" value="electronics" /> Electronics
+                                <span class="check-count">6</span>
+                            </label>
+                            <label class="filter-check" data-filter="category" data-value="apparel">
+                                <input type="radio" name="category" value="apparel" /> Apparel
+                                <span class="check-count">5</span>
+                            </label>
+                            <label class="filter-check" data-filter="category" data-value="home">
+                                <input type="radio" name="category" value="home" /> Home & Living
+                                <span class="check-count">5</span>
+                            </label>
+                            <label class="filter-check" data-filter="category" data-value="beauty">
+                                <input type="radio" name="category" value="beauty" /> Beauty
+                                <span class="check-count">4</span>
+                            </label>
+                            <label class="filter-check" data-filter="category" data-value="accessories">
+                                <input type="radio" name="category" value="accessories" /> Accessories
+                                <span class="check-count">4</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price range -->
+                    <div class="filter-group">
+                        <button class="filter-group-header" data-target="price-body">
+                            <span>Price Range</span>
+                            <span class="filter-arrow">›</span>
+                        </button>
+                        <div class="filter-group-body" id="price-body">
+                            <div class="price-inputs">
+                                <div class="price-input-wrap">
+                                    <span>$</span>
+                                    <input type="number" id="priceMin" value="0" min="0" max="999" placeholder="Min" />
+                                </div>
+                                <span class="price-dash">—</span>
+                                <div class="price-input-wrap">
+                                    <span>$</span>
+                                    <input type="number" id="priceMax" value="300" min="0" max="999"
+                                        placeholder="Max" />
+                                </div>
+                            </div>
+                            <div class="price-range-track">
+                                <div class="price-range-fill" id="priceRangeFill"></div>
+                                <input type="range" id="priceRangeMin" min="0" max="300" value="0"
+                                    class="range-input range-min" />
+                                <input type="range" id="priceRangeMax" min="0" max="300" value="300"
+                                    class="range-input range-max" />
+                            </div>
+                            <div class="price-range-labels">
+                                <span>$0</span><span>$300</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="filter-group">
+                        <button class="filter-group-header" data-target="rating-body">
+                            <span>Rating</span>
+                            <span class="filter-arrow">›</span>
+                        </button>
+                        <div class="filter-group-body" id="rating-body">
+                            <label class="filter-check" data-filter="rating" data-value="4">
+                                <input type="radio" name="rating" value="4" />
+                                <span class="stars-filter">★★★★</span><span class="star-empty">★</span> & up
+                                <span class="check-count">18</span>
+                            </label>
+                            <label class="filter-check" data-filter="rating" data-value="3">
+                                <input type="radio" name="rating" value="3" />
+                                <span class="stars-filter">★★★</span><span class="star-empty">★★</span> & up
+                                <span class="check-count">22</span>
+                            </label>
+                            <label class="filter-check active-check" data-filter="rating" data-value="0">
+                                <input type="radio" name="rating" value="0" checked /> Any rating
+                                <span class="check-count">24</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="filter-group">
+                        <button class="filter-group-header" data-target="tags-body">
+                            <span>Tags</span>
+                            <span class="filter-arrow">›</span>
+                        </button>
+                        <div class="filter-group-body" id="tags-body">
+                            <div class="tag-cloud">
+                                <button class="tag-btn" data-tag="new">New Arrival</button>
+                                <button class="tag-btn" data-tag="sale">On Sale</button>
+                                <button class="tag-btn" data-tag="trending">Trending</button>
+                                <button class="tag-btn" data-tag="bestseller">Best Seller</button>
+                                <button class="tag-btn" data-tag="limited">Limited</button>
+                                <button class="tag-btn" data-tag="eco">Eco-Friendly</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Availability -->
+                    <div class="filter-group">
+                        <button class="filter-group-header" data-target="avail-body">
+                            <span>Availability</span>
+                            <span class="filter-arrow">›</span>
+                        </button>
+                        <div class="filter-group-body" id="avail-body">
+                            <label class="filter-check">
+                                <input type="checkbox" id="inStockOnly" />
+                                In stock only
+                            </label>
+                            <label class="filter-check">
+                                <input type="checkbox" id="onSaleOnly" />
+                                On sale
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn-apply-filters" id="applyFilters">Apply Filters</button>
+                    <button class="btn-reset-filters" id="resetFilters">Reset All</button>
+
+                </div>
+            </aside>
+
+            <!-- Sidebar overlay (mobile) -->
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+            <!-- ===== PRODUCT GRID ===== -->
+            <section class="shop-grid-section">
+
+                <!-- No results -->
+                <div class="no-results" id="noResults" style="display:none">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                    <button class="btn-fill" id="noResultsReset">Clear filters</button>
+                </div>
+
+                <!-- Grid -->
+                <div class="product-grid" id="productGrid">
+                    <!-- Products injected by JS -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="page-btn" id="prevPage" disabled>← Prev</button>
+                    <div class="page-numbers" id="pageNumbers"></div>
+                    <button class="page-btn" id="nextPage">Next →</button>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- ========== CART DRAWER ========== -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h3>Your Cart <span id="cartItemCount">(0)</span></h3>
+            <button class="cart-drawer-close" id="cartDrawerClose">✕</button>
+        </div>
+        <div class="cart-drawer-body" id="cartBody">
+            <div class="cart-empty" id="cartEmpty">
+                <div class="cart-empty-icon">🛍️</div>
+                <p>Your cart is empty</p>
+                <small>Add some products to get started</small>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+        </div>
+        <div class="cart-drawer-footer" id="cartFooter" style="display:none">
+            <div class="cart-subtotal">
+                <span>Subtotal</span>
+                <strong id="cartSubtotal">$0.00</strong>
+            </div>
+            <p class="cart-shipping-note">Shipping calculated at checkout</p>
+            <a href="#" class="btn-fill" style="width:100%;justify-content:center;display:flex">Checkout →</a>
+            <a href="#" class="btn-line" style="width:100%;justify-content:center;display:flex;margin-top:10px">View
+                Full Cart</a>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- ========== QUICK VIEW MODAL ========== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="quick-view-modal" id="quickViewModal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-inner" id="modalInner">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="index.html" class="nav-logo footer-logo">Vibe<span>Cart</span></a>
+                <p>Curated goods from the world's most exciting independent brands — all in one place.</p>
+                <div class="footer-socials">
+                    <a href="#" aria-label="Instagram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                        </svg>
+                    </a>
+                    <a href="#" aria-label="TikTok">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8">
+                            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                        </svg>
+                    </a>
+                    <a href="#" aria-label="Twitter / X">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8">
+                            <path d="M4 4l16 16M4 20L20 4" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-cols">
+                <div class="footer-col">
+                    <h5>Shop</h5>
+                    <a href="#">New Arrivals</a>
+                    <a href="#">Best Sellers</a>
+                    <a href="#">Sale Items</a>
+                    <a href="#">Gift Cards</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Help</h5>
+                    <a href="#">FAQ</a>
+                    <a href="#">Shipping Info</a>
+                    <a href="#">Returns</a>
+                    <a href="#">Track Order</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Company</h5>
+                    <a href="#">About Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                    <a href="#">Affiliate</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Stay in the Loop</h5>
+                    <p class="newsletter-desc">New arrivals and deals to your inbox.</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="your@email.com" />
+                        <button>→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 VibeCart. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Settings</a>
+            </div>
+            <div class="payment-icons">
+                <span class="pay-icon">VISA</span>
+                <span class="pay-icon">MC</span>
+                <span class="pay-icon">AMEX</span>
+                <span class="pay-icon">PayPal</span>
+                <span class="pay-icon">ApplePay</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="shop.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>

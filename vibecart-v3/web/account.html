@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Account — VibeCart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .account-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Sidebar */
+    .account-sidebar {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: sticky;
+      top: calc(var(--header-h) + 20px);
+    }
+    .account-sidebar-header {
+      padding: 24px 20px;
+      background: var(--ink);
+      color: #fff;
+    }
+    .account-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+    .account-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.95);
+    }
+    .account-email {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 2px;
+    }
+    .account-since {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+    }
+    .account-nav {
+      padding: 8px;
+    }
+    .account-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink-2);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+    }
+    .account-nav-btn svg { color: var(--ink-muted); flex-shrink: 0; }
+    .account-nav-btn:hover { background: var(--cream); }
+    .account-nav-btn.active { background: var(--cream); color: var(--ink); font-weight: 600; }
+    .account-nav-btn.active svg { color: var(--accent); }
+    .account-nav-btn.danger { color: #dc2626; }
+    .account-nav-btn.danger svg { color: #dc2626; }
+    .account-nav-btn.danger:hover { background: rgba(220,38,38,0.07); }
+    .account-nav-divider { height: 1px; background: var(--border); margin: 6px 8px; }
+
+    /* Main content */
+    .account-main {}
+    .account-panel { display: none; }
+    .account-panel.active { display: block; }
+    .account-panel-header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .account-panel-title {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .account-panel-sub { font-size: 0.85rem; color: var(--ink-muted); }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--ink-muted); }
+
+    /* Orders */
+    .orders-list { display: flex; flex-direction: column; gap: 12px; }
+    .order-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .order-id { font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 4px; font-family: monospace; }
+    .order-items { font-weight: 600; font-size: 0.9rem; margin-bottom: 3px; }
+    .order-date { font-size: 0.78rem; color: var(--ink-muted); }
+    .order-right { text-align: right; }
+    .order-total { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+    .order-status {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .status-delivered { background: #dcfce7; color: #15803d; }
+    .status-shipped { background: #dbeafe; color: #1d4ed8; }
+    .status-processing { background: #fef9c3; color: #92400e; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+    .empty-state p { color: var(--ink-muted); font-size: 0.875rem; margin-bottom: 20px; }
+
+    /* Profile form */
+    .profile-form {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .form-section-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field label { font-size: 0.82rem; font-weight: 600; color: var(--ink-2); }
+    .form-field input {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--white);
+    }
+    .form-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,98,42,0.1); }
+    .form-field input:disabled { background: var(--cream); color: var(--ink-muted); cursor: not-allowed; }
+    .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--ink); color: #fff;
+      border: none; border-radius: var(--radius-pill);
+      font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+      padding: 11px 24px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--accent); }
+    .btn-save.success { background: #16a34a; }
+    .save-msg { font-size: 0.8rem; color: #16a34a; display: none; align-items: center; gap: 5px; }
+    .save-msg.show { display: flex; }
+
+    /* Password change */
+    .pw-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .pw-alert { background: rgba(220,38,38,0.08); border:1px solid rgba(220,38,38,0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.82rem; color: #dc2626; display:none; margin-bottom: 12px; }
+    .pw-alert.show { display: block; }
+
+    /* Wishlist */
+    .wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .wishlist-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .wishlist-card-img {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--cream);
+    }
+    .wishlist-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .wishlist-card-body { padding: 12px; }
+    .wishlist-card-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .wishlist-card-price { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .wishlist-card-actions { display: flex; gap: 6px; }
+    .btn-wl-cart {
+      flex: 1; padding: 7px; background: var(--ink); color: #fff;
+      border: none; border-radius: var(--radius-sm); font-family: var(--font-body);
+      font-size: 0.75rem; font-weight: 600; cursor: pointer; text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-wl-cart:hover { background: var(--accent); }
+    .btn-wl-remove {
+      padding: 7px 10px; background: transparent; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--ink-muted); cursor: pointer;
+      font-size: 0.75rem; font-family: var(--font-body); transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-wl-remove:hover { border-color: #dc2626; color: #dc2626; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--ink); color: #fff; padding: 12px 24px;
+      border-radius: var(--radius-pill); font-size: 0.875rem; font-weight: 500;
+      z-index: 9999; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Nav user avatar */
+    .nav-user-avatar {
+      width: 32px; height: 32px; background: var(--accent); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .account-layout { grid-template-columns: 1fr; padding: 20px 20px 60px; gap: 20px; }
+      .account-sidebar { position: static; }
+      .account-nav { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; }
+      .account-nav-btn { flex: 1; min-width: 120px; justify-content: center; font-size: 0.78rem; }
+      .account-nav-divider { display: none; }
+      .stats-row { grid-template-columns: repeat(3,1fr); }
+      .wishlist-grid { grid-template-columns: repeat(2,1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .wishlist-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grain" aria-hidden="true"></canvas>
+
+  <div class="announce-bar">
+    <span>✦ Free shipping on orders over $50</span>
+    <span class="divider">|</span>
+    <span>New arrivals every Friday ✦</span>
+    <span class="divider">|</span>
+    <span>Use code <strong>VIBE15</strong> for 15% off ✦</span>
+  </div>
+
+  <header class="header" id="header">
+    <nav class="nav">
+      <ul class="nav-left">
+        <li class="has-dropdown"><a href="shop.html">Shop <span class="chevron">›</span></a>
+          <div class="dropdown">
+            <a href="shop.html?filter=new">New Arrivals</a>
+            <a href="shop.html?filter=bestseller">Best Sellers</a>
+            <a href="shop.html?filter=sale">Sale</a>
+          </div>
+        </li>
+        <li><a href="shop.html?filter=sale">Deals</a></li>
+      </ul>
+      <a href="index.html" class="nav-logo">Vibe<span>Cart</span></a>
+      <div class="nav-right">
+        <a href="account.html" class="icon-btn" id="accountNavBtn" aria-label="My Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+        <a href="shop.html" class="icon-btn cart-btn" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count" id="cartCountBadge" style="display:none">0</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="account-layout">
+
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+      <div class="account-sidebar-header">
+        <div class="account-avatar" id="sidebarAvatar">?</div>
+        <div class="account-name" id="sidebarName">Loading…</div>
+        <div class="account-email" id="sidebarEmail"></div>
+        <div class="account-since" id="sidebarSince"></div>
+      </div>
+      <nav class="account-nav">
+        <button class="account-nav-btn active" data-panel="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="account-nav-btn" data-panel="orders">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Orders
+        </button>
+        <button class="account-nav-btn" data-panel="wishlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Wishlist
+        </button>
+        <button class="account-nav-btn" data-panel="profile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile & Settings
+        </button>
+        <div class="account-nav-divider"></div>
+        <button class="account-nav-btn danger" id="logoutBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Log Out
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="account-main">
+
+      <!-- OVERVIEW -->
+      <div class="account-panel active" id="panel-overview">
+        <div class="account-panel-header">
+          <h1 class="account-panel-title" id="overviewGreeting">My Account</h1>
+          <p class="account-panel-sub">Here's what's happening with your VibeCart account.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="statOrders">0</div>
+            <div class="stat-label">Total orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statWishlist">0</div>
+            <div class="stat-label">Wishlist items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statCart">0</div>
+            <div class="stat-label">Items in cart</div>
+          </div>
+        </div>
+
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px">
+          <div style="font-weight:700;font-size:0.9rem;margin-bottom:14px;color:var(--ink)">Quick Actions</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="shop.html" class="btn-fill" style="padding:10px 20px;font-size:0.82rem">Shop Now →</a>
+            <button class="account-nav-btn" data-panel="orders" style="width:auto;border:1.5px solid var(--border);padding:10px 20px">View Orders</button>
+            <button class="account-nav-btn" data-panel="wishlist" style="width:auto;border:1.5px solid var(--border);padding:10px 20px">View Wishlist</button>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,var(--ink) 0%,#2e2a26 100%);border-radius:var(--radius);padding:24px;color:#fff">
+          <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Member Perk</p>
+          <p style="font-size:1rem;font-weight:600;margin-bottom:4px">You have an exclusive discount waiting</p>
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:14px">Use code <strong style="color:#fff">VIBE15</strong> at checkout for 15% off your next order.</p>
+          <a href="shop.html" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;padding:9px 20px;border-radius:var(--radius-pill);font-size:0.82rem;font-weight:600;text-decoration:none">Explore the shop →</a>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="account-panel" id="panel-orders">
+        <div class="account-panel-header">
+          <h1 class="account-panel-title">My Orders</h1>
+          <p class="account-panel-sub" id="ordersSubtitle">Your complete order history</p>
+        </div>
+        <div class="orders-list" id="ordersList"></div>
+      </div>
+
+      <!-- WISHLIST -->
+      <div class="account-panel" id="panel-wishlist">
+        <div class="account-panel-header">
+          <h1 class="account-panel-title">My Wishlist</h1>
+          <p class="account-panel-sub" id="wishlistSubtitle">Products you've saved</p>
+        </div>
+        <div id="wishlistContent"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="account-panel" id="panel-profile">
+        <div class="account-panel-header">
+          <h1 class="account-panel-title">Profile &amp; Settings</h1>
+          <p class="account-panel-sub">Manage your personal information and password</p>
+        </div>
+
+        <div class="profile-form">
+          <div class="form-section-title">Personal Information</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>First name</label>
+              <input type="text" id="pfFirst" autocomplete="given-name" />
+            </div>
+            <div class="form-field">
+              <label>Last name</label>
+              <input type="text" id="pfLast" autocomplete="family-name" />
+            </div>
+            <div class="form-field" style="grid-column:1/-1">
+              <label>Email address</label>
+              <input type="email" id="pfEmail" disabled />
+              <span style="font-size:0.75rem;color:var(--ink-muted);margin-top:2px">Email address cannot be changed.</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" id="saveProfileBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Changes
+            </button>
+            <div class="save-msg" id="profileSaveMsg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Profile updated successfully
+            </div>
+          </div>
+
+          <!-- Password change -->
+          <div class="pw-section">
+            <div class="form-section-title">Change Password</div>
+            <div class="pw-alert" id="pwAlert"></div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:400px">
+              <div class="form-field">
+                <label>Current password</label>
+                <input type="password" id="pfPwCurrent" placeholder="Enter current password" autocomplete="current-password" />
+              </div>
+              <div class="form-field">
+                <label>New password</label>
+                <input type="password" id="pfPwNew" placeholder="At least 8 characters" autocomplete="new-password" />
+              </div>
+              <div class="form-field">
+                <label>Confirm new password</label>
+                <input type="password" id="pfPwNew2" placeholder="Repeat new password" autocomplete="new-password" />
+              </div>
+            </div>
+            <div class="form-actions" style="margin-top:16px">
+              <button class="btn-save" id="savePwBtn">Update Password</button>
+              <div class="save-msg" id="pwSaveMsg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Password updated
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="form-section-title" style="color:#dc2626;border-color:rgba(220,38,38,0.15)">Danger Zone</div>
+            <p style="font-size:0.82rem;color:var(--ink-muted);margin-bottom:12px">Permanently delete your account and all associated data. This cannot be undone.</p>
+            <button id="deleteAccountBtn" style="background:transparent;border:1.5px solid #dc2626;color:#dc2626;border-radius:var(--radius-pill);padding:9px 20px;font-family:var(--font-body);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#dc2626';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#dc2626'">
+              Delete My Account
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="auth.js"></script>
+  <script>
+    // ---- Redirect if not logged in ----
+    const session = Auth.getSession();
+    if (!session) { window.location.href = 'login.html?next=account.html'; }
+
+    // ---- Grain ----
+    const grain = document.getElementById('grain');
+    const gctx = grain.getContext('2d');
+    function resize() { grain.width = innerWidth; grain.height = innerHeight; }
+    function drawGrain() {
+      const w=grain.width, h=grain.height, img=gctx.createImageData(w,h);
+      for(let i=0;i<img.data.length;i+=4){const v=(Math.random()*255)|0;img.data[i]=img.data[i+1]=img.data[i+2]=v;img.data[i+3]=20;}
+      gctx.putImageData(img,0,0); requestAnimationFrame(drawGrain);
+    }
+    resize(); window.addEventListener('resize',resize); drawGrain();
+
+    // ---- Sticky header ----
+    window.addEventListener('scroll', () => document.getElementById('header').classList.toggle('scrolled', scrollY > 10));
+
+    // ---- Fill sidebar ----
+    function fillSidebar() {
+      document.getElementById('sidebarAvatar').textContent = Auth.initials(session);
+      document.getElementById('sidebarName').textContent = `${session.firstName} ${session.lastName}`;
+      document.getElementById('sidebarEmail').textContent = session.email;
+      const d = new Date(session.createdAt);
+      document.getElementById('sidebarSince').textContent = `Member since ${d.toLocaleDateString('en-US',{month:'long',year:'numeric'})}`;
+    }
+    fillSidebar();
+
+    // ---- Nav account icon ----
+    const navAccBtn = document.getElementById('accountNavBtn');
+    navAccBtn.innerHTML = `<div class="nav-user-avatar">${Auth.initials(session)}</div>`;
+
+    // ---- Cart badge ----
+    try {
+      const cart = JSON.parse(localStorage.getItem('vibecart_cart') || '[]');
+      const total = cart.reduce((s,i)=>s+i.qty,0);
+      const badge = document.getElementById('cartCountBadge');
+      badge.textContent = total;
+      badge.style.display = total > 0 ? 'flex' : 'none';
+    } catch {}
+
+    // ---- Panel switching ----
+    const panels = document.querySelectorAll('.account-panel');
+    const navBtns = document.querySelectorAll('.account-nav-btn[data-panel]');
+    function showPanel(name) {
+      panels.forEach(p => p.classList.toggle('active', p.id === 'panel-'+name));
+      navBtns.forEach(b => b.classList.toggle('active', b.dataset.panel === name));
+      if (name === 'orders') renderOrders();
+      if (name === 'wishlist') renderWishlist();
+      if (name === 'profile') fillProfile();
+    }
+    navBtns.forEach(btn => btn.addEventListener('click', () => showPanel(btn.dataset.panel)));
+
+    // ---- Overview ----
+    document.getElementById('overviewGreeting').textContent = `Hello, ${session.firstName} 👋`;
+    try {
+      const wl = JSON.parse(localStorage.getItem('vibecart_wishlist') || '[]');
+      const cart = JSON.parse(localStorage.getItem('vibecart_cart') || '[]');
+      const orders = JSON.parse(localStorage.getItem('vibecart_orders') || '[]');
+      document.getElementById('statOrders').textContent = orders.length;
+      document.getElementById('statWishlist').textContent = wl.length;
+      document.getElementById('statCart').textContent = cart.reduce((s,i)=>s+i.qty,0);
+    } catch {}
+
+    // ---- Orders ----
+    // Demo orders - in a real app these come from the database
+    const DEMO_ORDERS = [
+      { id: 'VC-2026-0031', items: 'Noise-Cancelling Headphones, Leather Card Wallet', total: 189.98, date: '2026-03-10', status: 'delivered' },
+      { id: 'VC-2026-0018', items: 'Slim Smart Watch Series X', total: 79.99, date: '2026-02-22', status: 'delivered' },
+      { id: 'VC-2026-0009', items: 'Minimalist Canvas Backpack, Linen Blend Joggers', total: 143.99, date: '2026-01-14', status: 'delivered' },
+    ];
+    function renderOrders() {
+      const stored = (() => { try { return JSON.parse(localStorage.getItem('vibecart_orders') || '[]'); } catch { return []; } })();
+      const all = [...stored, ...DEMO_ORDERS];
+      const el = document.getElementById('ordersList');
+      document.getElementById('ordersSubtitle').textContent = `${all.length} order${all.length !== 1 ? 's' : ''} placed`;
+      if (all.length === 0) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Once you place an order, it'll show up here.</p><a href="shop.html" class="btn-fill" style="display:inline-block">Start Shopping →</a></div>`;
+        return;
+      }
+      const statusLabel = { delivered: 'Delivered', shipped: 'Shipped', processing: 'Processing' };
+      el.innerHTML = all.map(o => `
+        <div class="order-card">
+          <div>
+            <div class="order-id"># ${o.id}</div>
+            <div class="order-items">${o.items}</div>
+            <div class="order-date">${new Date(o.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+          </div>
+          <div class="order-right">
+            <div class="order-total">$${typeof o.total === 'number' ? o.total.toFixed(2) : o.total}</div>
+            <span class="order-status status-${o.status}">${statusLabel[o.status] || o.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ---- Wishlist ----
+    const PRODUCTS_MAP = {
+      1: { name:'Wireless ANC Earbuds Pro', price:49.99, img:'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&q=80' },
+      2: { name:'RGB Ambient Desk Lamp', price:34.99, img:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&q=80' },
+      3: { name:'Slim Smart Watch Series X', price:79.99, img:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&q=80' },
+      4: { name:'Minimalist Canvas Backpack', price:89.00, img:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80' },
+      5: { name:'Portable Espresso Maker', price:44.99, img:'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=300&q=80' },
+      6: { name:'Leather Card Wallet', price:29.99, img:'https://images.unsplash.com/photo-1627123424574-724758594e93?w=300&q=80' },
+      7: { name:'Retinol Night Serum', price:38.00, img:'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=300&q=80' },
+      8: { name:'Mechanical Keyboard TKL', price:119.00, img:'https://images.unsplash.com/photo-1595044426077-d36d9236d54a?w=300&q=80' },
+      11:{ name:'Polarized Sunglasses', price:64.99, img:'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&q=80' },
+      15:{ name:'Stainless Tumbler 40oz', price:32.99, img:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&q=80' },
+      23:{ name:'Noise-Cancelling Headphones', price:159.99, img:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&q=80' },
+    };
+    function renderWishlist() {
+      const ids = (() => { try { return JSON.parse(localStorage.getItem('vibecart_wishlist') || '[]'); } catch { return []; } })();
+      const el = document.getElementById('wishlistContent');
+      document.getElementById('wishlistSubtitle').textContent = `${ids.length} saved item${ids.length !== 1 ? 's' : ''}`;
+      if (ids.length === 0) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">❤️</div><h3>Your wishlist is empty</h3><p>Heart any product in the shop to save it here.</p><a href="shop.html" class="btn-fill" style="display:inline-block">Browse Products →</a></div>`;
+        return;
+      }
+      const items = ids.map(id => PRODUCTS_MAP[id] ? { id, ...PRODUCTS_MAP[id] } : null).filter(Boolean);
+      el.innerHTML = `<div class="wishlist-grid">${items.map(p => `
+        <div class="wishlist-card">
+          <div class="wishlist-card-img"><img src="${p.img}" alt="${p.name}" loading="lazy" /></div>
+          <div class="wishlist-card-body">
+            <div class="wishlist-card-name">${p.name}</div>
+            <div class="wishlist-card-price">$${p.price.toFixed(2)}</div>
+            <div class="wishlist-card-actions">
+              <button class="btn-wl-cart" data-id="${p.id}">Add to Cart</button>
+              <button class="btn-wl-remove" data-id="${p.id}">✕</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}</div>`;
+
+      el.querySelectorAll('.btn-wl-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const product = PRODUCTS_MAP[id];
+          try {
+            const cart = JSON.parse(localStorage.getItem('vibecart_cart') || '[]');
+            const ex = cart.find(i => i.id === id);
+            if (ex) ex.qty++; else cart.push({ id, name: product.name, price: product.price, img: product.img, qty: 1 });
+            localStorage.setItem('vibecart_cart', JSON.stringify(cart));
+            showToast(`${product.name.slice(0,20)}… added to cart 🛍️`);
+            document.getElementById('statCart').textContent = cart.reduce((s,i)=>s+i.qty,0);
+          } catch {}
+        });
+      });
+      el.querySelectorAll('.btn-wl-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          try {
+            const wl = JSON.parse(localStorage.getItem('vibecart_wishlist') || '[]').filter(i => i !== id);
+            localStorage.setItem('vibecart_wishlist', JSON.stringify(wl));
+            showToast('Removed from wishlist');
+            renderWishlist();
+            document.getElementById('statWishlist').textContent = wl.length;
+          } catch {}
+        });
+      });
+    }
+
+    // ---- Profile ----
+    function fillProfile() {
+      document.getElementById('pfFirst').value = session.firstName || '';
+      document.getElementById('pfLast').value  = session.lastName  || '';
+      document.getElementById('pfEmail').value = session.email;
+    }
+
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const first = document.getElementById('pfFirst').value.trim();
+      const last  = document.getElementById('pfLast').value.trim();
+      if (!first || !last) { showToast('Please fill in both name fields.'); return; }
+      const result = Auth.updateProfile({ firstName: first, lastName: last });
+      if (result.ok) {
+        fillSidebar();
+        document.getElementById('overviewGreeting').textContent = `Hello, ${first} 👋`;
+        const btn = document.getElementById('saveProfileBtn');
+        btn.classList.add('success'); btn.textContent = '✓ Saved';
+        document.getElementById('profileSaveMsg').classList.add('show');
+        setTimeout(() => { btn.classList.remove('success'); btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Save Changes'; document.getElementById('profileSaveMsg').classList.remove('show'); }, 2500);
+      }
+    });
+
+    document.getElementById('savePwBtn').addEventListener('click', async () => {
+      const cur  = document.getElementById('pfPwCurrent').value;
+      const nw   = document.getElementById('pfPwNew').value;
+      const nw2  = document.getElementById('pfPwNew2').value;
+      const alrt = document.getElementById('pwAlert');
+      alrt.classList.remove('show');
+
+      if (!cur || !nw || !nw2) { alrt.classList.add('show'); alrt.textContent = 'Please fill in all password fields.'; return; }
+      if (nw.length < 8) { alrt.classList.add('show'); alrt.textContent = 'New password must be at least 8 characters.'; return; }
+      if (nw !== nw2) { alrt.classList.add('show'); alrt.textContent = 'New passwords do not match.'; return; }
+
+      const result = await Auth.changePassword({ currentPassword: cur, newPassword: nw });
+      if (!result.ok) { alrt.classList.add('show'); alrt.textContent = result.error; return; }
+
+      document.getElementById('pfPwCurrent').value = '';
+      document.getElementById('pfPwNew').value = '';
+      document.getElementById('pfPwNew2').value = '';
+      document.getElementById('pwSaveMsg').classList.add('show');
+      setTimeout(() => document.getElementById('pwSaveMsg').classList.remove('show'), 3000);
+    });
+
+    document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+      if (!confirm(`Are you sure you want to permanently delete your account (${session.email})? This cannot be undone.`)) return;
+      try {
+        const users = JSON.parse(localStorage.getItem('vibecart_users') || '{}');
+        delete users[session.email];
+        localStorage.setItem('vibecart_users', JSON.stringify(users));
+        localStorage.removeItem('vibecart_session');
+        localStorage.removeItem('vibecart_cart');
+        localStorage.removeItem('vibecart_wishlist');
+        localStorage.removeItem('vibecart_orders');
+      } catch {}
+      window.location.href = 'index.html';
+    });
+
+    // ---- Logout ----
+    document.getElementById('logoutBtn').addEventListener('click', () => { Auth.logout(); });
+
+    // ---- Toast ----
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+    }
+  </script>
+</body>
+</html>
